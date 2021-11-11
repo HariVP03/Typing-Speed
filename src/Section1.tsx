@@ -1,50 +1,178 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Flex, Heading, Textarea, Button, Text } from "@chakra-ui/react";
+import moment from "moment";
+import { rword } from "rword";
+import randomWords from "random-words";
+import {
+  Flex,
+  Heading,
+  chakra,
+  Input,
+  Radio,
+  Text,
+  Button,
+  Box,
+  VisuallyHidden,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  RadioGroup,
+} from "@chakra-ui/react";
 
 const Section1: React.FC = () => {
-  const [state, setState] = useState(""); // What is typed so far
-  const [l, setL] = useState(0); // Current pointer
-  const timer = useRef(new Date()); // Initializes timer ref
-  const lastCorrect = useRef(0);
-
-  var sentence =
-    "Hello world this is a test message haha typing test tested epic gamer node bash close minimize tab not tab haha hehe huhu hehe";
+  const [time, setTime] = useState<number>(0);
+  const timer = useRef<number>(0); // Initializes timer ref
+  const inputHidden = useRef<HTMLInputElement>(null);
+  const pointer = useRef(-1);
+  const lastCorrect = useRef(-1);
+  const [typed, setTyped] = useState("");
+  const [correct, setCorrect] = useState("");
+  const [incorrect, setIncorrect] = useState("");
+  const [sentence, setSentence] = useState(randomWords(5).join(" "));
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const wordCount = useRef(5);
 
   const startTimer = () => {
-    timer.current = new Date();
+    timer.current = parseInt(moment().format("x"));
+    console.log(timer.current);
   };
   const endTimer = () => {
-    var end = new Date();
+    var end = parseInt(moment().format("x"));
     const timeDiff = end - timer.current;
-    console.log(timeDiff);
+    setTime(timeDiff);
+    pointer.current = -1;
+    lastCorrect.current = -1;
+    setTyped("");
+    setIncorrect("");
+    setCorrect("");
   };
 
   useEffect(() => {
-    console.log(lastCorrect);
+    var sentenceGenerated = randomWords(wordCount.current);
+    try {
+      setSentence(sentenceGenerated.join(" "));
+    } catch (err) {
+      console.error(err);
+    }
+  }, [wordCount.current]);
 
-    if (l === 0) {
+  useEffect(() => {
+    if (pointer.current === 0) {
       startTimer();
-    } else if (l === sentence.length - 1) {
+    } else if (pointer.current === sentence.length - 1) {
       endTimer();
+      pointer.current = -1;
+      setTyped("");
     }
-
-    if (sentence.substring(0, l + 1) === state) {
-      lastCorrect.current = l;
-      console.log(l, lastCorrect);
+    if (typed === sentence.substring(0, pointer.current + 1)) {
+      lastCorrect.current = pointer.current;
     }
-  }, [state]);
+    setCorrect(
+      pointer.current === -1 ? "" : typed.substring(0, lastCorrect.current + 1)
+    );
+    if (pointer.current === lastCorrect.current) {
+      setIncorrect("");
+    } else {
+      setIncorrect(
+        sentence.substring(lastCorrect.current + 1, pointer.current + 1)
+      );
+    }
+  }, [typed]);
 
   return (
     <Flex
-      minW="100vw"
+      maxW="100vw"
       maxH="100vh"
       direction="column"
       justifyContent="center"
       alignItems="center"
     >
-      <Flex minW="100%" minH="10vh" justifyContent="center">
-        <Heading textAlign="center">Typing Test</Heading>
+      <Flex
+        mb={6}
+        minW="100%"
+        minH="10vh"
+        justifyContent="center"
+        direction="column"
+      >
+        <Heading textAlign="center" fontFamily="'Londrina Solid', cursive">
+          Typing Test
+        </Heading>
       </Flex>
+      <Button onClick={onOpen} mb={6} fontFamily="'Baloo 2', cursive">
+        Settings
+      </Button>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader fontFamily="'Baloo 2', cursive">Settings</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <chakra.h2 fontFamily="'Baloo 2', cursive">Word Count:</chakra.h2>
+            <RadioGroup defaultValue={wordCount.current.toString()}>
+              <Radio
+                fontFamily="'Baloo 2', cursive"
+                size="md"
+                mx={2}
+                value="5"
+                onClick={() => {
+                  wordCount.current = 5;
+                }}
+                defaultChecked
+              >
+                5
+              </Radio>
+              <Radio
+                fontFamily="'Baloo 2', cursive"
+                size="md"
+                value="10"
+                mx={2}
+                onClick={() => {
+                  wordCount.current = 10;
+                }}
+              >
+                10
+              </Radio>
+              <Radio
+                fontFamily="'Baloo 2', cursive"
+                size="md"
+                value="15"
+                mx={2}
+                onClick={() => {
+                  wordCount.current = 15;
+                }}
+              >
+                15
+              </Radio>
+              <Radio
+                fontFamily="'Baloo 2', cursive"
+                size="md"
+                value="20"
+                mx={2}
+                onClick={() => {
+                  wordCount.current = 20;
+                }}
+              >
+                20
+              </Radio>
+              <Radio
+                fontFamily="'Baloo 2', cursive"
+                size="md"
+                value="25"
+                mx={2}
+                onClick={() => {
+                  wordCount.current = 25;
+                }}
+              >
+                25
+              </Radio>
+            </RadioGroup>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
       <Flex w="100%" minH="50vh" justifyContent="center">
         <Flex
           zIndex="2"
@@ -52,48 +180,59 @@ const Section1: React.FC = () => {
           maxH="100px"
           fontSize="2xl"
           direction="column"
+        ></Flex>
+        <Box
+          bg="gray.700"
+          resize="none"
+          cursor="pointer"
+          overflowWrap="anywhere"
+          color="gray"
+          onClick={() => {
+            inputHidden.current?.focus();
+          }}
+          fontSize="25px"
+          border="1px solid"
+          borderColor="gray.600"
+          rounded="md"
+          w="90%"
+          p={5}
+          minH="70%"
         >
-          <Textarea
-            background="transparent"
-            resize="none"
-            fontSize="25px"
-            w="90vw"
-            h="45vh"
-            value={state}
+          <chakra.span color="black" fontFamily='"Ubuntu Mono", monospace'>
+            {correct}
+          </chakra.span>
+
+          <chakra.span color="red" fontFamily='"Ubuntu Mono", monospace'>
+            {incorrect}
+          </chakra.span>
+          <chakra.span color="gray" fontFamily='"Ubuntu Mono", monospace'>
+            {pointer.current === -1
+              ? sentence
+              : sentence.substring(pointer.current + 1, sentence.length)}
+          </chakra.span>
+        </Box>
+
+        <VisuallyHidden>
+          <Input
+            type="text"
+            value={typed}
             onChange={(e) => {
-              setState(e.target.value);
-              setL(state.length);
+              pointer.current = e.target.value.length - 1;
+              setTyped(e.target.value);
             }}
+            ref={inputHidden}
           />
-        </Flex>
-        <Flex maxH="100px" fontSize="2xl" direction="column">
-          <Textarea
-            background="transparent"
-            resize="none"
-            color="gray"
-            fontSize="25px"
-            w="90vw"
-            h="45vh"
-            value={sentence}
-          />
-        </Flex>
+        </VisuallyHidden>
       </Flex>
-      <Button
-        onClick={startTimer}
-        size="lg"
-        minH="50px"
-        fontSize="20px"
-        my={20}
-      >
-        Start Timer
-      </Button>
-      <Button onClick={endTimer} size="lg" minH="50px" fontSize="20px" my={20}>
-        Stop Timer
-      </Button>
-      <Flex maxH="100px" maxW="90vw" direction="row">
-        <Text>{state.substring(0, lastCorrect.current + 1)}</Text>
-        <Text color="red">{state.substring(lastCorrect.current + 1, l)}</Text>
-      </Flex>
+      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
+        Average Words Per Minute: {(wordCount.current / time) * 1000 * 60}
+      </Text>
+      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
+        Time taken in seconds: {time}
+      </Text>
+      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
+        Words Typed: {wordCount.current}
+      </Text>
     </Flex>
   );
 };
