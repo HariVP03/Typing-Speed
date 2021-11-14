@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import moment from "moment";
-import { rword } from "rword";
 import randomWords from "random-words";
 import {
   Flex,
@@ -26,18 +25,18 @@ const Section1: React.FC = () => {
   const [time, setTime] = useState<number>(0);
   const timer = useRef<number>(0); // Initializes timer ref
   const inputHidden = useRef<HTMLInputElement>(null);
-  const pointer = useRef(-1);
-  const lastCorrect = useRef(-1);
-  const [typed, setTyped] = useState("");
-  const [correct, setCorrect] = useState("");
-  const [incorrect, setIncorrect] = useState("");
-  const [sentence, setSentence] = useState(randomWords(5).join(" "));
+  const pointer = useRef<number>(-1);
+  const lastCorrect = useRef<number>(-1);
+  const [typed, setTyped] = useState<string>("");
+  const [correct, setCorrect] = useState<string>("");
+  const [incorrect, setIncorrect] = useState<string>("");
+  const [sentence, setSentence] = useState<string>(randomWords(5).join(" "));
   const { isOpen, onOpen, onClose } = useDisclosure();
   const wordCount = useRef(5);
+  const speeds = useRef<number[]>([]);
 
   const startTimer = () => {
     timer.current = parseInt(moment().format("x"));
-    console.log(timer.current);
   };
   const endTimer = () => {
     var end = parseInt(moment().format("x"));
@@ -48,6 +47,29 @@ const Section1: React.FC = () => {
     setTyped("");
     setIncorrect("");
     setCorrect("");
+    var sentenceGenerated = randomWords(wordCount.current);
+    try {
+      setSentence(sentenceGenerated.join(" "));
+    } catch (err) {
+      console.error(err);
+    }
+    speeds.current.push(timeDiff);
+    console.log(speeds.current);
+    speeds.current = [];
+  };
+
+  const reset = () => {
+    pointer.current = -1;
+    lastCorrect.current = -1;
+    setTyped("");
+    setIncorrect("");
+    setCorrect("");
+    var sentenceGenerated = randomWords(wordCount.current);
+    try {
+      setSentence(sentenceGenerated.join(" "));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -90,89 +112,87 @@ const Section1: React.FC = () => {
       justifyContent="center"
       alignItems="center"
     >
-      <Flex
-        mb={6}
-        minW="100%"
-        minH="10vh"
-        justifyContent="center"
-        direction="column"
-      >
+      <Flex my={6} minW="100%" minH="10vh" justifyContent="space-around">
+        <Button onClick={onOpen} mb={6} fontFamily="'Baloo 2', cursive">
+          Settings
+        </Button>
+
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader fontFamily="'Baloo 2', cursive">Settings</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <chakra.h2 fontFamily="'Baloo 2', cursive">Word Count:</chakra.h2>
+              <RadioGroup defaultValue={wordCount.current.toString()}>
+                <Radio
+                  fontFamily="'Baloo 2', cursive"
+                  size="md"
+                  mx={2}
+                  value="5"
+                  onClick={() => {
+                    wordCount.current = 5;
+                  }}
+                  defaultChecked
+                >
+                  5
+                </Radio>
+                <Radio
+                  fontFamily="'Baloo 2', cursive"
+                  size="md"
+                  value="10"
+                  mx={2}
+                  onClick={() => {
+                    wordCount.current = 10;
+                  }}
+                >
+                  10
+                </Radio>
+                <Radio
+                  fontFamily="'Baloo 2', cursive"
+                  size="md"
+                  value="15"
+                  mx={2}
+                  onClick={() => {
+                    wordCount.current = 15;
+                  }}
+                >
+                  15
+                </Radio>
+                <Radio
+                  fontFamily="'Baloo 2', cursive"
+                  size="md"
+                  value="20"
+                  mx={2}
+                  onClick={() => {
+                    wordCount.current = 20;
+                  }}
+                >
+                  20
+                </Radio>
+                <Radio
+                  fontFamily="'Baloo 2', cursive"
+                  size="md"
+                  value="25"
+                  mx={2}
+                  onClick={() => {
+                    wordCount.current = 25;
+                  }}
+                >
+                  25
+                </Radio>
+              </RadioGroup>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
         <Heading textAlign="center" fontFamily="'Londrina Solid', cursive">
           Typing Test
         </Heading>
+        <Button as="a" href="/signup" mb={6} fontFamily="'Baloo 2', cursive">
+          Signup/Login
+        </Button>
       </Flex>
-      <Button onClick={onOpen} mb={6} fontFamily="'Baloo 2', cursive">
-        Settings
-      </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader fontFamily="'Baloo 2', cursive">Settings</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <chakra.h2 fontFamily="'Baloo 2', cursive">Word Count:</chakra.h2>
-            <RadioGroup defaultValue={wordCount.current.toString()}>
-              <Radio
-                fontFamily="'Baloo 2', cursive"
-                size="md"
-                mx={2}
-                value="5"
-                onClick={() => {
-                  wordCount.current = 5;
-                }}
-                defaultChecked
-              >
-                5
-              </Radio>
-              <Radio
-                fontFamily="'Baloo 2', cursive"
-                size="md"
-                value="10"
-                mx={2}
-                onClick={() => {
-                  wordCount.current = 10;
-                }}
-              >
-                10
-              </Radio>
-              <Radio
-                fontFamily="'Baloo 2', cursive"
-                size="md"
-                value="15"
-                mx={2}
-                onClick={() => {
-                  wordCount.current = 15;
-                }}
-              >
-                15
-              </Radio>
-              <Radio
-                fontFamily="'Baloo 2', cursive"
-                size="md"
-                value="20"
-                mx={2}
-                onClick={() => {
-                  wordCount.current = 20;
-                }}
-              >
-                20
-              </Radio>
-              <Radio
-                fontFamily="'Baloo 2', cursive"
-                size="md"
-                value="25"
-                mx={2}
-                onClick={() => {
-                  wordCount.current = 25;
-                }}
-              >
-                25
-              </Radio>
-            </RadioGroup>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
       <Flex w="100%" minH="50vh" justifyContent="center">
         <Flex
           zIndex="2"
@@ -198,22 +218,29 @@ const Section1: React.FC = () => {
           p={5}
           minH="70%"
         >
-          <chakra.span color="black" fontFamily='"Ubuntu Mono", monospace'>
+          <chakra.span color="black" fontFamily="Poppins">
             {correct}
           </chakra.span>
 
-          <chakra.span color="red" fontFamily='"Ubuntu Mono", monospace'>
+          <chakra.span color="red" fontFamily="Poppins">
             {incorrect}
           </chakra.span>
-          <chakra.span color="gray" fontFamily='"Ubuntu Mono", monospace'>
+          <chakra.span color="gray" fontFamily="Poppins">
             {pointer.current === -1
               ? sentence
               : sentence.substring(pointer.current + 1, sentence.length)}
           </chakra.span>
         </Box>
-
         <VisuallyHidden>
           <Input
+            onKeyPress={(event) => {
+              if (event.key === "Enter") {
+                reset();
+              } else if (event.key === " ") {
+                var time = parseInt(moment().format("x"));
+                speeds.current.push(time - timer.current);
+              }
+            }}
             type="text"
             value={typed}
             onChange={(e) => {
@@ -224,6 +251,9 @@ const Section1: React.FC = () => {
           />
         </VisuallyHidden>
       </Flex>
+      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
+        Press Enter to reset
+      </Text>
       <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
         Average Words Per Minute: {(wordCount.current / time) * 1000 * 60}
       </Text>
