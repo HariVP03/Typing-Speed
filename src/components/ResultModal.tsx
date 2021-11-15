@@ -72,13 +72,13 @@ const ResultModal: React.FC<{
                 Average Words Per Minute: {Math.round(wpm)}
               </Text>
               <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
-                Time taken in seconds: {Math.round(time / 60)}
+                Time taken in seconds: {Math.round(time / 1000)}
               </Text>
               <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
                 Words Typed: {wordsTyped}
               </Text>
               <Button mt={3} variant="ghost" maxW="55%" bg="gray.600">
-                Save to Profile?
+                Save to Profile
               </Button>
             </Flex>
           </Flex>

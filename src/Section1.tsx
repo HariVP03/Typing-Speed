@@ -103,9 +103,14 @@ const Section1: React.FC = () => {
   }, [wordCount.current]);
 
   useEffect(() => {
+    console.log(pointer.current);
+    console.log(lastCorrect.current);
     if (pointer.current === 0) {
       startTimer();
-    } else if (pointer.current === sentence.length - 1) {
+    } else if (
+      pointer.current === sentence.length - 1 &&
+      pointer.current === lastCorrect.current + 1
+    ) {
       endTimer();
       pointer.current = -1;
       setTyped("");
