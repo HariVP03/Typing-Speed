@@ -214,14 +214,8 @@ const Section1: React.FC = () => {
         <Heading textAlign="center" fontFamily="'Londrina Solid', cursive">
           Typing Test
         </Heading>
-        <Button
-          as="a"
-          href="/signup"
-          mb={6}
-          fontFamily="'Baloo 2', cursive"
-          disabled={true}
-        >
-          Signup/Login
+        <Button mb={6} fontFamily="'Baloo 2', cursive" disabled={true}>
+          Themes
         </Button>
       </Flex>
 
@@ -250,14 +244,14 @@ const Section1: React.FC = () => {
           p={5}
           minH="70%"
         >
-          <chakra.span color="black" fontFamily="Poppins">
+          <chakra.span color="white" fontFamily="Ubuntu Mono">
             {correct}
           </chakra.span>
 
-          <chakra.span color="red" fontFamily="Poppins">
+          <chakra.span color="red" fontFamily="Ubuntu Mono">
             {incorrect}
           </chakra.span>
-          <chakra.span color="gray" fontFamily="Poppins">
+          <chakra.span color="gray.500" fontFamily="Ubuntu Mono">
             {pointer.current === -1
               ? sentence
               : sentence.substring(pointer.current + 1, sentence.length)}
