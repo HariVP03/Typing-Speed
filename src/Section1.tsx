@@ -209,7 +209,13 @@ const Section1: React.FC = () => {
         <Heading textAlign="center" fontFamily="'Londrina Solid', cursive">
           Typing Test
         </Heading>
-        <Button as="a" href="/signup" mb={6} fontFamily="'Baloo 2', cursive">
+        <Button
+          as="a"
+          href="/signup"
+          mb={6}
+          fontFamily="'Baloo 2', cursive"
+          disabled={true}
+        >
           Signup/Login
         </Button>
       </Flex>
