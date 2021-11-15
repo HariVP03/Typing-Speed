@@ -20,6 +20,7 @@ import {
   useDisclosure,
   RadioGroup,
 } from "@chakra-ui/react";
+import ResultModal from "./components/ResultModal";
 
 const Section1: React.FC = () => {
   const [time, setTime] = useState<number>(0);
@@ -32,11 +33,19 @@ const Section1: React.FC = () => {
   const [incorrect, setIncorrect] = useState<string>("");
   const [sentence, setSentence] = useState<string>(randomWords(5).join(" "));
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const dataPoints = useRef<{ name: string; speed: number }[]>([]);
+  const {
+    isOpen: isOpenResult,
+    onOpen: onOpenResult,
+    onClose: onCloseResult,
+  } = useDisclosure();
   const wordCount = useRef(5);
   const speeds = useRef<number[]>([]);
 
   const startTimer = () => {
     timer.current = parseInt(moment().format("x"));
+    dataPoints.current = [];
+    speeds.current = [];
   };
   const endTimer = () => {
     var end = parseInt(moment().format("x"));
@@ -47,14 +56,25 @@ const Section1: React.FC = () => {
     setTyped("");
     setIncorrect("");
     setCorrect("");
+
     var sentenceGenerated = randomWords(wordCount.current);
     try {
       setSentence(sentenceGenerated.join(" "));
     } catch (err) {
       console.error(err);
     }
-    speeds.current.push(timeDiff);
+    speeds.current.push(end);
     console.log(speeds.current);
+    var timeTemp = timer.current;
+    speeds.current.forEach((e) => {
+      dataPoints.current.push({
+        name: `Word ${speeds.current.indexOf(e) + 1}`,
+        speed: 60000 / (e - timeTemp),
+      });
+      timeTemp = e;
+    });
+
+    onOpenResult();
     speeds.current = [];
   };
 
@@ -64,6 +84,7 @@ const Section1: React.FC = () => {
     setTyped("");
     setIncorrect("");
     setCorrect("");
+    speeds.current = [];
     var sentenceGenerated = randomWords(wordCount.current);
     try {
       setSentence(sentenceGenerated.join(" "));
@@ -238,7 +259,7 @@ const Section1: React.FC = () => {
                 reset();
               } else if (event.key === " ") {
                 var time = parseInt(moment().format("x"));
-                speeds.current.push(time - timer.current);
+                speeds.current.push(time);
               }
             }}
             type="text"
@@ -251,17 +272,16 @@ const Section1: React.FC = () => {
           />
         </VisuallyHidden>
       </Flex>
-      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
+      <Modal isOpen={isOpenResult} onClose={onCloseResult}>
+        <ResultModal
+          dataPoints={dataPoints.current}
+          wpm={(wordCount.current / time) * 1000 * 60}
+          time={time}
+          wordsTyped={wordCount.current}
+        />
+      </Modal>
+      <Text mt={3} fontFamily="'Baloo 2', cursive" fontSize="2xl">
         Press Enter to reset
-      </Text>
-      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
-        Average Words Per Minute: {(wordCount.current / time) * 1000 * 60}
-      </Text>
-      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
-        Time taken in seconds: {time}
-      </Text>
-      <Text fontFamily="'Baloo 2', cursive" fontSize="2xl">
-        Words Typed: {wordCount.current}
       </Text>
     </Flex>
   );
